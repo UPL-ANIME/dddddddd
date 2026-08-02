@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Javoblar Varaqasi</title>
+    <!-- MathLive kutubxonasi (Barqaror CDN orqali) -->
+    <script src="https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js"></script>
+    
+    <!-- TURBOWARP UCHUN KLAVIATURA SOZLAMASI -->
+    <script>
+        window.addEventListener('load', () => {
+            if (window.mathVirtualKeyboard) {
+                // Klaviaturani TurboWarp iframe ichida ishlashga majburlash
+                window.mathVirtualKeyboard.container = document.body;
+            }
+        });
+    </script>
+    
+    <style>
+        /* ==============================
+           CHAVOBLAR VARAQASI DIZAYN & ANIMATSIYA
+           ============================== */
+        :root {
+            --primary-color: #3498db; /* Asosiy ko'k rang */
+            --primary-dark: #2980b9;
+            --accent-color: #e74c3c; /* Taymer uchun qizil */
+            --success-color: #2ecc71; /* Yuborish tugmasi */
+            --success-dark: #27ae60;
+            --bg-color: #f0f3f6; /* Fon rangi */
+            --surface-color: #ffffff; /* Elementlar foni */
+            --text-main: #2c3e50; /* Asosiy matn */
+            --text-muted: #7f8c8d; /* Ikkinchi darajali matn */
+            --border-color: #dcdde1; /* Chegara rangi */
+            --shadow-light: 0 4px 6px rgba(0,0,0,0.05);
+            --shadow-medium: 0 8px 15px rgba(0,0,0,0.1);
+            --transition-fast: 0.2s ease;
+            --transition-slow: 0.5s ease;
+            --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* Umumiy reset va asosiy stillar */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* Mobil teginish effektini o'chirish */
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 10px; /* Mobil qurilmalar uchun kichik chekka */
+            line-height: 1.6;
+            overflow-x: hidden; /* Gorizontal skrollni oldini olish */
+        }
+
+        /* Konteyner - yuklanganda paydo bo'lish animatsiyasi */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-medium);
+            animation: fadeInPage var(--transition-slow);
+        }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Sarlavha qismi (Sticky) */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            position: sticky;
+            top: 0;
+            background: var(--surface-color);
+            z-index: 100;
+            backdrop-filter: blur(5px); /* Mayin xiralashtirish effekti */
+            padding-top: 5px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 20px;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        /* Taymer stili va animatsiyasi */
+        .timer {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-color);
+            background: #ffebee;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--accent-color);
+            font-variant-numeric: tabular-nums; /* Raqamlar siljimasligi uchun */
+            animation: timerPulse 2s infinite; /* Mayin impuls effekti */
+        }
+
+        @keyframes timerPulse {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+
+        /* Bo'lim sarlavhalari */
+        h2 {
+            font-size: 16px;
+            color: var(--text-main);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-color);
+            padding-left: 10px;
+            font-weight: 600;
+        }
+
+        /* Test variantlari panjarasi (Grid) */
+        .grid-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Mobil uchun moslashuvchan */
+            gap: 12px;
+        }
+
+        /* Savol qatori stili va animatsiyasi */
+        .question-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+        }
+
+        .question-row:hover, .question-row:active {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-light);
+            background: #f1f3f5;
+        }
+
+        .question-number {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-muted);
+            width: 25px;
+            text-align: right;
+        }
+
+        /* Javob variantlari konteyneri */
+        .options {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap; /* Sig'masa pastga tushadi */
+        }
+
+        /* Radio tugmalarining vizual stili (Dumaloq) */
+        .options label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px; /* Kattaroq, bosishga qulay */
+            height: 32px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            background: var(--surface-color);
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-main);
+            transition: all var(--transition-fast);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Tanlangandagi animatsiya (To'lqin effekti kabi) */
+        .options label::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(52, 152, 219, 0.2);
+            border-radius: 50%;
+            transform: scale(0);
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+
+        .options input[type="radio"]:checked + label::after {
+            transform: scale(2);
+            opacity: 1;
+            transition: 0s; /* Tanlanganda darhol ko'rinadi */
+        }
+
+        /* Radio tugmalarni yashirish */
+        .options input[type="radio"] { display: none; }
+
+        /* Tanlangan holat stili */
+        .options input[type="radio"]:checked + label {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3);
+            transform: scale(1.05); /* Kichik kattalashish effekti */
+        }
+
+        /* Yozma savollar stili */
+        .written-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .written-row {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: transform var(--transition-fast);
+        }
+
+        .written-row:hover, .written-row:active {
+            transform: translateY(-2px);
+        }
+
+        .written-row .question-number {
+            font-weight: 700;
+            color: var(--text-main);
+            width: auto;
+            text-align: left;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        /* MathLive kiritish maydonchalari */
+        .math-inputs {
+            display: flex;
+            gap: 10px;
+            flex-direction: column; /* Mobil qurilmalarda kiritish qulayligi uchun ustun shaklida */
+        }
+
+        math-field {
+            width: 100%;
+            font-size: 18px;
+            padding: 10px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.03);
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        /* Fokus bo'lgandagi stil */
+        math-field:focus-within {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+        }
+
+        /* Yuborish tugmasi stili va animatsiyasi */
+        .submit-btn {
+            display: block;
+            width: 100%;
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 12px;
+            margin-top: 35px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            box-shadow: 0 4px 10px rgba(46, 204, 113, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Tugma ustiga borgandagi stil */
+        .submit-btn:hover {
+            background: var(--success-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        /* Tugma bosilgandagi stil */
+        .submit-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 5px rgba(46, 204, 113, 0.2);
+        }
+
+        /* Planshet va noutbuklar uchun moslashuvchanlik */
+        @media (min-width: 600px) {
+            body { padding: 20px; }
+            .container { padding: 30px; }
+            h1 { font-size: 22px; }
+            .timer { font-size: 22px; }
+            h2 { font-size: 18px; }
+            .grid-options { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+            .question-row { gap: 10px; }
+            .question-number { font-size: 15px; width: 30px; }
+            .options { gap: 8px; }
+            .options label { width: 30px; height: 30px; font-size: 14px; }
+            .written-grid { gap: 15px; }
+            .written-row { padding: 18px; }
+            .written-row .question-number { font-size: 15px; }
+            .math-inputs { flex-direction: row; gap: 15px; } /* Katta ekranda yonma-yon */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Javoblar Varaqasi</h1>
+        <div class="timer" id="timer">60:00</div>
+    </div>
+
+    <!-- 1 - 32 savollar (A, B, C, D) -->
+    <h2>1-32: Bitta to'g'ri javobni belgilang (A, B, C, D)</h2>
+    <div class="grid-options" id="section1"></div>
+
+    <!-- 33 - 35 savollar (A, B, C, D, E, F) -->
+    <h2>33-35: Ko'p tanlovli savollar (A, B, C, D, E, F)</h2>
+    <div class="grid-options" id="section2"></div>
+
+    <!-- 36 - 45 savollar (2 shartli yozma - LaTeX) -->
+    <h2>36-45: 2 shartli yozma (LaTeX klaviatura ochiq)</h2>
+    <div class="written-grid" id="section3"></div>
+
+    <button class="submit-btn" onclick="submitTest()">Testni Yuklash</button>
+</div>
+
+<script>
+    /* ==============================
+       FUNKSIONAL QISM 
+       ============================== */
+    
+    // 1. Taymer mantiqi (60 daqiqa = 3600 soniya)
+    let timeLeft = 3600; 
+    const timerEl = document.getElementById('timer');
+    
+    const countdown = setInterval(() => {
+        if(timeLeft <= 0) {
+            clearInterval(countdown);
+            timerEl.innerText = "00:00";
+            alert("Vaqt tugadi!");
+            submitTest(); // Vaqt tugasa avtomatik yuborish
+            return;
+        }
+        timeLeft--;
+        let m = Math.floor(timeLeft / 60);
+        let s = timeLeft % 60;
+        timerEl.innerText = m.toString().padStart(2, '0') + ":" + s.toString().padStart(2, '0');
+    }, 1000);
+
+    // 2. Savollarni dinamik yaratish 
+    
+    // 1-32 (A,B,C,D)
+    const sec1 = document.getElementById('section1');
+    for(let i=1; i<=32; i++) {
+        sec1.innerHTML += createRadioRow(i, ['A','B','C','D']);
+    }
+
+    // 33-35 (A,B,C,D,E,F)
+    const sec2 = document.getElementById('section2');
+    for(let i=33; i<=35; i++) {
+        sec2.innerHTML += createRadioRow(i, ['A','B','C','D','E','F']);
+    }
+
+    // 36-45 (2 shartli yozma - MathLive)
+    const sec3 = document.getElementById('section3');
+    for(let i=36; i<=45; i++) {
+        sec3.innerHTML += '<div class="written-row">' +
+            '<div class="question-number">' + i + '-savol (2 ta shart):</div>' +
+            '<div class="math-inputs">' +
+                '<math-field id="q' + i + '_cond1" placeholder="1-shart javobi..."></math-field>' +
+                '<math-field id="q' + i + '_cond2" placeholder="2-shart javobi..."></math-field>' +
+            '</div>' +
+        '</div>';
+    }
+
+    // Yordamchi funksiya: radio knopkalarni chizish
+    function createRadioRow(num, letters) {
+        let optionsHtml = '';
+        letters.forEach(letter => {
+            optionsHtml += '<input type="radio" id="q' + num + '_' + letter + '" name="q' + num + '" value="' + letter + '">' +
+                '<label for="q' + num + '_' + letter + '">' + letter + '</label>';
+        });
+        return '<div class="question-row">' +
+            '<div class="question-number">' + num + '.</div>' +
+            '<div class="options">' + optionsHtml + '</div>' +
+        '</div>';
+    }
+
+    // 3. Testni yig'ish va TurboWarp'ga yuborish 
+    function submitTest() {
+        let answersArray = [];
+
+        // Test javoblarini yig'ish (1-35)
+        for(let i=1; i<=35; i++) {
+            let selected = document.querySelector('input[name="q' + i + '"]:checked');
+            answersArray.push(selected ? selected.value : "");
+        }
+
+        // Yozma javoblarini yig'ish (36-45) 
+        for(let i=36; i<=45; i++) {
+            let cond1 = document.getElementById('q' + i + '_cond1').value;
+            let cond2 = document.getElementById('q' + i + '_cond2').value;
+            let val1 = cond1 ? cond1 : "";
+            let val2 = cond2 ? cond2 : "";
+            // 2 ta shartni bitta qatorga birlashtirib ( | ) belgisi bilan massivga qo'shamiz
+            answersArray.push(val1 + " | " + val2);
+        }
+
+        console.log("Yuborilayotgan ma'lumotlar:", answersArray);
+
+        // TurboWarp iframe ekanligi sabab parent oynaga yuboramiz
+        if(window.parent) {
+            window.parent.postMessage({
+                target: 'turbowarp_extension',
+                action: 'submit_answers',
+                // To'g'ridan-to'g'ri massivni (array) yuboramiz
+                payload: JSON.stringify(answersArray)
+            }, '*');
+        }
+
+        alert("Test muvaffaqiyatli yuklandi!");
+    }
+</script>
+
+</body>
+</html>
